@@ -23,6 +23,32 @@ const postResolvers = {
         throw new Error(err);
       }
     },
+    async posts(parent, args) {
+      try {
+        const first = args.first || 8;
+        const after = args.after || null;
+        const allPosts = await Post.find().sort({ createdAt: 'desc' });
+        const offset = allPosts.findIndex((post) => post.id === after) + 1;
+
+        const wantedPosts = allPosts.slice(offset, offset + first);
+        console.log(wantedPosts);
+        const lastWantedPost = wantedPosts.slice(-1)[0]._id;
+
+        return {
+          pageInfo: {
+            endCursor: lastWantedPost,
+            hasNextPage: offset + first < allPosts.length,
+          },
+          edges: wantedPosts.map((post) => ({
+            cursor: post._id,
+            node: post,
+          })),
+        };
+      } catch (err) {
+        console.log(err);
+        throw new Error(err);
+      }
+    },
   },
   Mutation: {
     async createPost(parent, { body }, context) {
