@@ -27,7 +27,8 @@ const postResolvers = {
       try {
         const first = args.first || 8;
         const after = args.after || null;
-        const allPosts = await Post.find().sort({ createdAt: 'desc' });
+        const sortOrder = args.sortBy || 'desc';
+        const allPosts = await Post.find().sort({ createdAt: sortOrder });
         const offset = allPosts.findIndex((post) => post.id === after) + 1;
 
         const wantedPosts = allPosts.slice(offset, offset + first);
